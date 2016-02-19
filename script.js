@@ -1,3 +1,8 @@
+//steps:
+// 1.  read file and break into map of map[word] = frequencyOfWord
+// 2.  Create binary Huffman tree using the word counts.  Frequent words will have short uniqe binary codes
+// 3.  Read over the trainModelThread code in word2vec
+
 var fs = require('fs');
 var path = require('path');
 
