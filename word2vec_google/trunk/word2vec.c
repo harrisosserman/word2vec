@@ -388,19 +388,24 @@ void *TrainModelThread(void *id) {
     //sentence_length gets initialized to 0
     if (sentence_length == 0) {
       while (1) {
+        // read next word and return the index that it occurs in the vocab[] data structure
         word = ReadWordIndex(fi);
         if (feof(fi)) break;
         if (word == -1) continue;
         word_count++;
         if (word == 0) break;
         // The subsampling randomly discards frequent words while keeping the ranking same
+        // sample is passed in at program start and is how many words we are willing to skip
+        // seems unnecessary for V1 of the algorithm
         if (sample > 0) {
           real ran = (sqrt(vocab[word].cn / (sample * train_words)) + 1) * (sample * train_words) / vocab[word].cn;
           next_random = next_random * (unsigned long long)25214903917 + 11;
           if (ran < (next_random & 0xFFFF) / (real)65536) continue;
         }
+        //construct an array sen where each index maps to the index in the vocab list
         sen[sentence_length] = word;
         sentence_length++;
+        //stop constructing this sentence once we hit the maximum length of a sentence
         if (sentence_length >= MAX_SENTENCE_LENGTH) break;
       }
       sentence_position = 0;
