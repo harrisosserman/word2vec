@@ -396,7 +396,7 @@ void *TrainModelThread(void *id) {
         if (word == 0) break;
         // The subsampling randomly discards frequent words while keeping the ranking same
         // sample is passed in at program start and is how many words we are willing to skip
-        // seems unnecessary for V1 of the algorithm
+        // sampling seems unnecessary for V1 of the algorithm
         if (sample > 0) {
           real ran = (sqrt(vocab[word].cn / (sample * train_words)) + 1) * (sample * train_words) / vocab[word].cn;
           next_random = next_random * (unsigned long long)25214903917 + 11;
@@ -422,6 +422,7 @@ void *TrainModelThread(void *id) {
     }
     word = sen[sentence_position];
     if (word == -1) continue;
+    //layer1_size is initialized to 100
     for (c = 0; c < layer1_size; c++) neu1[c] = 0;
     for (c = 0; c < layer1_size; c++) neu1e[c] = 0;
     next_random = next_random * (unsigned long long)25214903917 + 11;
@@ -429,17 +430,22 @@ void *TrainModelThread(void *id) {
     if (cbow) {  //train the cbow architecture
       // in -> hidden
       cw = 0;
+      // a gets initialized to a random number between 0 and window size
+      // looking at words sentence_position +- a
       for (a = b; a < window * 2 + 1 - b; a++) if (a != window) {
         c = sentence_position - window + a;
         if (c < 0) continue;
         if (c >= sentence_length) continue;
         last_word = sen[c];
         if (last_word == -1) continue;
-        for (c = 0; c < layer1_size; c++) neu1[c] += syn0[c + last_word * layer1_size];
+        // above code just makes sure that the index is valid and the word shows up in the vocab list
+        for (c = 0; c < layer1_size; c++) neu1[c] += syn0[c + last_word * layer1_size]; //TODO: WHAT DOES THIS LINE DO???
+        //increment cw for every valid word
         cw++;
       }
       if (cw) {
         for (c = 0; c < layer1_size; c++) neu1[c] /= cw;
+        //following code is only necessary if you're using hierarchical softmax (speed-up from regular softmax)
         if (hs) for (d = 0; d < vocab[word].codelen; d++) {
           f = 0;
           l2 = vocab[word].point[d] * layer1_size;
