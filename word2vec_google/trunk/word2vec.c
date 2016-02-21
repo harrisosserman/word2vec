@@ -28,6 +28,15 @@ const int vocab_hash_size = 30000000;  // Maximum 30 * 0.7 = 21M words in the vo
 
 typedef float real;                    // Precision of float numbers
 
+//vocab[index] = {
+  // word: word,
+  // cn: wordCount,
+  // code: used for binary tree 
+  // point: used for binary tree
+// }
+
+//vocab_hash[hash] = the index of the vocab word in the vocab list above
+
 struct vocab_word {
   long long cn;
   int *point;
@@ -446,6 +455,7 @@ void *TrainModelThread(void *id) {
       if (cw) {
         for (c = 0; c < layer1_size; c++) neu1[c] /= cw;
         //following code is only necessary if you're using hierarchical softmax (speed-up from regular softmax)
+        //codelen is the length of the huffman tree encoding for the word (I think)
         if (hs) for (d = 0; d < vocab[word].codelen; d++) {
           f = 0;
           l2 = vocab[word].point[d] * layer1_size;
