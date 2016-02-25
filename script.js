@@ -5,6 +5,8 @@
 
 var fs = require('fs');
 var path = require('path');
+var _ = require('lodash');
+var huffman = require('n-ary-huffman');
 
 var filePath = path.join(__dirname, 'corpus.txt');
 var corpus = "";
@@ -27,7 +29,15 @@ var finishReadingFile = function() {
 		if (!wordMap[word]) wordMap[word] = 0;
 		wordMap[word] ++;
 	});
-	console.log(wordMap)
+	var wordArray = _.chain(wordMap).map(function(wordCount, word) {
+		return {
+			word: word,
+			weight: wordCount
+		};
+	}).sortBy(['weight']).value();
+
+	var tree = huffman.createTree(wordArray, 2, true);
+	console.log(JSON.stringify(tree.children));
 };
 
 
