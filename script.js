@@ -53,6 +53,7 @@ var trainModel = function(splitWords) {
 	var neu1e = [];
 	var nextRandom = 1;
 	var randomPositionInSentence = 0;
+	var syn0 = [];	//TODO: FIGURE OUT IF SYN0 IS A 2D ARRAY, AND IF IT IS, INIALIZE AS SUCH
 
 	while(true) {
 
@@ -79,15 +80,16 @@ var trainModel = function(splitWords) {
 			}
 		}
 		sentencePosition = 0;
-		for (c = 0; c < LAYER_1_SIZE; c++) neu1[c] = 0;
-    	for (c = 0; c < LAYER_1_SIZE; c++) neu1e[c] = 0;
+		for (var c = 0; c < LAYER_1_SIZE; c++) neu1[c] = 0;
+    	for (var c = 0; c < LAYER_1_SIZE; c++) neu1e[c] = 0;
     	nextRandom = Math.random() * 25214903917;	//just tryna get a random number
     	randomPositionInSentence = nextRandom % BAG_OF_WORDS_WINDOW;
     	var cw = 0;
     	for (var count=randomPositionInSentence; count < BAG_OF_WORDS_WINDOW * 2 + 1; count++) {
     		if (count === BAG_OF_WORDS_WINDOW) continue;
-    		
-
+    		var windowIndex = sentencePosition - BAG_OF_WORDS_WINDOW + count;
+    		if (windowIndex < 0 || windowIndex >= sentence.length) continue;
+    		for (var k = 0; k < LAYER_1_SIZE; k++) neu1[k] += syn0[k + sentence[windowIndex] * LAYER_1_SIZE];
     	}
 
 
