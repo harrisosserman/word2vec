@@ -9,6 +9,8 @@ var _ = require('lodash');
 
 const MAX_SENTENCE_LENGTH = 1000;
 const TRAINING_ITERATIONS = 10;
+const LAYER_1_SIZE = 100;
+const BAG_OF_WORDS_WINDOW = 5;
 
 var filePath = path.join(__dirname, 'corpus.txt');
 var corpus = "";
@@ -46,6 +48,11 @@ var trainModel = function(splitWords) {
 	var lastWordIndex = 0;
 	var sentence = [];
 	var localIterations = TRAINING_ITERATIONS;
+	var sentencePosition = 0;
+	var neu1 = [];
+	var neu1e = [];
+	var nextRandom = 1;
+	var randomPositionInSentence = 0;
 
 	while(true) {
 
@@ -69,12 +76,22 @@ var trainModel = function(splitWords) {
 				lastWordIndex = 0;
 				sentence = [];
 				continue;
-
 			}
 		}
+		sentencePosition = 0;
+		for (c = 0; c < LAYER_1_SIZE; c++) neu1[c] = 0;
+    	for (c = 0; c < LAYER_1_SIZE; c++) neu1e[c] = 0;
+    	nextRandom = Math.random() * 25214903917;	//just tryna get a random number
+    	randomPositionInSentence = nextRandom % BAG_OF_WORDS_WINDOW;
+    	var cw = 0;
+    	for (var count=randomPositionInSentence; count < BAG_OF_WORDS_WINDOW * 2 + 1; count++) {
+    		if (count === BAG_OF_WORDS_WINDOW) continue;
+    		
+
+    	}
+
+
+
+		sentencePosition++;
 	}
-
-
-	//go through each word in order and create sentences of length max sentence length
-	// construct a sentence array where each
 };
