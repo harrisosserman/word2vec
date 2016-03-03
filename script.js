@@ -1,12 +1,14 @@
 //steps:
 // 1.  read file and break into map of map[word] = frequencyOfWord
-// 2.  Create binary Huffman tree using the word counts.  Frequent words will have short uniqe binary codes
+// 2.  Create binary Huffman tree using the word counts.  Frequent words will have short uniqe binary codes -- seems unnecessary if not using hierarchical softmax
 // 3.  Read over the trainModelThread code in word2vec
 
 var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
-var huffman = require('n-ary-huffman');
+
+const MAX_SENTENCE_LENGTH = 1000;
+const TRAINING_ITERATIONS = 10;
 
 var filePath = path.join(__dirname, 'corpus.txt');
 var corpus = "";
@@ -36,8 +38,43 @@ var finishReadingFile = function() {
 		};
 	}).sortBy(['weight']).value();
 
-	var tree = huffman.createTree(wordArray, 2, true);
-	console.log(JSON.stringify(tree.children));
+	trainModel(splitWords);
 };
 
+var trainModel = function(splitWords) {
 
+	var lastWordIndex = 0;
+	var sentence = [];
+	var localIterations = TRAINING_ITERATIONS;
+
+	while(true) {
+
+		if (sentence.length === 0) {
+			for(var k=lastWordIndex; k<splitWords.length; k++) {
+				var word = splitWords[k];
+				if (sentence.length < MAX_SENTENCE_LENGTH) {
+					//tie the sentence index to the frequency that the word occurs
+					sentence[sentence.length] = wordMap[word];	
+				} else {
+					break;
+				}
+				lastWordIndex++;
+			}
+		}
+		if (lastWordIndex === splitWords.length) {
+			if (localIterations === 0) {
+				//stop iterating once you've gone through the entire list TRAINING_ITERATIONS times
+				break;
+			} else {
+				lastWordIndex = 0;
+				sentence = [];
+				continue;
+
+			}
+		}
+	}
+
+
+	//go through each word in order and create sentences of length max sentence length
+	// construct a sentence array where each
+};
