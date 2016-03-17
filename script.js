@@ -16,11 +16,13 @@ const MAX_SENTENCE_LENGTH = 1000;
 const TRAINING_ITERATIONS = 10;
 const LAYER_1_SIZE = 100;
 const BAG_OF_WORDS_WINDOW = 5;
+const K_VALUE_FOR_WORDMAP_D_PRIME = 5;
 
 var filePath = path.join(__dirname, 'corpus.txt');
 var corpus = "";
 var context = 2;  //context is the number of words +- a word that we will look at
-var wordMap = {};	//maps a word to its frequency
+var wordMapD = {};	//maps a word to its frequency
+var wordMapDPrime = {};	//word context pairs that are not in corpus
 
 fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
     if (!err){
@@ -34,18 +36,51 @@ fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
 var finishReadingFile = function() {
 	// break into words and count the number of times each word exists
 	var splitWords = corpus.split(" ");
+	var countItemsInWordMapD = 0;
+	// to avoid having this run n^2 time, store temporary variables
+	var prev2 = null, prev1 = null, current = null, next1 = null, next2 = null;
 	splitWords.forEach(function(word) {
-		if (!wordMap[word]) wordMap[word] = 0;
-		wordMap[word] ++;
+		next2 = word;
+		if (current !== null) {
+			if (!wordMapD[current])	wordMapD[current] = [];
+			wordMapD[current].push([prev2, prev1, next1, next2]);	
+			countItemsInWordMapD++;
+		}
+		prev2 = prev1;
+		prev1 = current;
+		current = next1;
+		next1 = next2;
 	});
-	var wordArray = _.chain(wordMap).map(function(wordCount, word) {
-		return {
-			word: word,
-			weight: wordCount
-		};
-	}).sortBy(['weight']).value();
 
-	trainModel(splitWords);
+	// console.log(wordMapD)
+
+	// generate wordmap D prime
+	var countItemsInWordMapDPrime = 0;
+	while (countItemsInWordMapDPrime < countItemsInWordMapD) {
+		prev1 = splitWords[Math.round(Math.random() * splitWords.length)];
+		prev2 = splitWords[Math.round(Math.random() * splitWords.length)];
+		current = splitWords[Math.round(Math.random() * splitWords.length)];
+		next1 = splitWords[Math.round(Math.random() * splitWords.length)];
+		next2 = splitWords[Math.round(Math.random() * splitWords.length)];
+
+		var contextsForWord = wordMapD[current];
+		if (!contextsForWord) continue;
+		var foundMatch = false;
+		contextsForWord.forEach(function(listOfWords) {
+			if (listOfWords[0] === prev1 && listOfWords[1] === prev2 && listOfWords[2] === next1 && listOfWords[3] === next2) {
+				foundMatch = true;
+			}
+		});
+		if (!foundMatch) {
+			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
+			wordMapDPrime[current].push([prev2, prev1, next1, next2]);	
+			countItemsInWordMapDPrime++;
+		}
+	}
+	console.log(wordMapDPrime)
+
+
+	// trainModel(splitWords);
 };
 
 var trainModel = function(splitWords) {
