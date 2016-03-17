@@ -1,7 +1,12 @@
 //steps:
-// 1.  read file and break into map of map[word] = frequencyOfWord
-// 2.  Create binary Huffman tree using the word counts.  Frequent words will have short uniqe binary codes -- seems unnecessary if not using hierarchical softmax
-// 3.  Read over the trainModelThread code in word2vec
+// Use negative sampling!
+//1.  Break the entire vocabulary into a map D where D contains map of (word, context) for all words and contexts
+// Make another map D' for the map (word, context) for all words and contexts not in the corpus
+// 2.  Pr(Z = 1 | (w, c)) = probability that a pair (w,c) is in the corpus
+// Pr(Z = 0 | (w, c)) = probability that a pair (w,c) is not in the corpus
+// 3.  Pr(Z = 1 | (w, c)) = (1/(1 + e^(-vcT * vw)))
+// 4.  31:39 into https://www.youtube.com/watch?v=nuirUEmbaJU explains the combined probability function
+// 5.  When running the function that you optimize, for every pair (w,c) that is in the corpus, use k pairs (w,c) that are not in the corpus (google found that optimization worked)
 
 var fs = require('fs');
 var path = require('path');
