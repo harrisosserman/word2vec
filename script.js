@@ -17,6 +17,7 @@ const TRAINING_ITERATIONS = 10;
 const LAYER_1_SIZE = 100;
 const BAG_OF_WORDS_WINDOW = 5;
 const K_VALUE_FOR_WORDMAP_D_PRIME = 5;
+const LEARNING_RATE = .05;
 
 var filePath = path.join(__dirname, 'corpus.txt');
 var corpus = "";
@@ -53,8 +54,6 @@ var finishReadingFile = function() {
 		next1 = next2;
 	});
 
-	sizeOfVocabulary = _.keys(wordMapD).length;
-
 	// generate wordmap D prime
 	var countItemsInWordMapDPrime = 0;
 	while (countItemsInWordMapDPrime < countItemsInWordMapD) {
@@ -79,63 +78,71 @@ var finishReadingFile = function() {
 		}
 	}
 	console.log(wordMapDPrime)
-
-
-
-	// trainModel(splitWords);
+	trainModel();
 };
 
-var trainModel = function(splitWords) {
+var trainModel = function() {
+	var oldOutput, newOutput;
+	var DMapKeys = _.keys(wordMapD);
+	var DPrimeMapKeys = _.keys(wordMapDPrime);
+	var context;
+	sizeOfVocabulary = DMapKeys.length;
 
-	var lastWordIndex = 0;
-	var sentence = [];
-	var localIterations = TRAINING_ITERATIONS;
-	var sentencePosition = 0;
-	var neu1 = [];
-	var neu1e = [];
-	var nextRandom = 1;
-	var randomPositionInSentence = 0;
-	var syn0 = [];	//TODO: FIGURE OUT IF SYN0 IS A 2D ARRAY, AND IF IT IS, INIALIZE AS SUCH
-
-	while(true) {
-
-		if (sentence.length === 0) {
-			for(var k=lastWordIndex; k<splitWords.length; k++) {
-				var word = splitWords[k];
-				if (sentence.length < MAX_SENTENCE_LENGTH) {
-					//tie the sentence index to the frequency that the word occurs
-					sentence[sentence.length] = wordMap[word];	
-				} else {
-					break;
-				}
-				lastWordIndex++;
-			}
+	//initialize W, W Prime, and H matrices with random values between [-1, 1]
+	var W = [];	//sizeOfVocabulary x LAYER_1_SIZE
+	var WPrime = []; //sizeOfVocabulary x LAYER_1_SIZE
+	var H = [];	//LAYER_1_SIZE x 1
+	for (var row = 0; row < sizeOfVocabulary; row++) {
+		W[row] = [];
+		WPrime[row] = [];
+		for (var column = 0; column < LAYER_1_SIZE; column++) {
+			var randValueW = Math.random();
+			var isPositiveW = Math.random() >= 0.5 ? 1 : -1;
+			var randValueWPrime = Math.random();
+			var isPositiveWPrime = Math.random() >= 0.5 ? 1 : -1;
+			W[row][column] = randValueW * isPositiveW;
+			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
 		}
-		if (lastWordIndex === splitWords.length) {
-			if (localIterations === 0) {
-				//stop iterating once you've gone through the entire list TRAINING_ITERATIONS times
-				break;
-			} else {
-				lastWordIndex = 0;
-				sentence = [];
-				continue;
-			}
-		}
-		sentencePosition = 0;
-		for (var c = 0; c < LAYER_1_SIZE; c++) neu1[c] = 0;
-    	for (var c = 0; c < LAYER_1_SIZE; c++) neu1e[c] = 0;
-    	nextRandom = Math.random() * 25214903917;	//just tryna get a random number
-    	randomPositionInSentence = nextRandom % BAG_OF_WORDS_WINDOW;
-    	var cw = 0;
-    	for (var count=randomPositionInSentence; count < BAG_OF_WORDS_WINDOW * 2 + 1; count++) {
-    		if (count === BAG_OF_WORDS_WINDOW) continue;
-    		var windowIndex = sentencePosition - BAG_OF_WORDS_WINDOW + count;
-    		if (windowIndex < 0 || windowIndex >= sentence.length) continue;
-    		for (var k = 0; k < LAYER_1_SIZE; k++) neu1[k] += syn0[k + sentence[windowIndex] * LAYER_1_SIZE];
-    	}
-
-
-
-		sentencePosition++;
 	}
+
+	for (var k=0; k<LAYER_1_SIZE; k++) {
+		var randValueH = Math.random();
+		var isPositiveH = Math.random() >= 0.5 ? 1 : -1;
+		H[k] = randValueH * isPositiveH;
+	}
+
+	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
+		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
+			if (DMapKeys) {
+				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
+					context = wordMapD[DMapKeys[middleWord]];
+					var X = createXInputVector(context, DMapKeys);
+
+
+				}
+			}
+			if (DPrimeMapKeys[middleWord]) {
+				for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
+					context = wordMapDPrime[DPrimeMapKeys[middleWord]];
+
+				}
+			}
+		}
+	}
+};
+
+var createXInputVector = function(context, keysFromWMap) {
+	var outputArray = [];
+	for(var k=0; k<sizeOfVocabulary; k++) {
+		if (context.indexOf(keysFromWMap[k]) > -1) {
+			outputArray[k] = [1];
+		} else {
+			outputArray[k] = [0];
+		}
+	}
+	return outputArray;
+}
+
+var gradientAscentIteration = function() {
+
 };
