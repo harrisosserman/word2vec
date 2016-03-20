@@ -1,0 +1,31 @@
+{
+  "name": "word2vec",
+  "version": "1.0.0",
+  "description": "a simple javascript implementation of the famous Google word2vec",
+  "main": "script.js",
+  "dependencies": {
+    "n-ary-huffman": "^2.1.1",
+    "lodash": "^4.6.1",
+    "mathjs": "^3.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node script.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harrisosserman/word2vec.git"
+  },
+  "keywords": [
+    "word2vec",
+    "js",
+    "javascript"
+  ],
+  "author": "Harris Osserman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/harrisosserman/word2vec/issues"
+  },
+  "homepage": "https://github.com/harrisosserman/word2vec#readme"
+}

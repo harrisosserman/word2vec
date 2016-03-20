@@ -23,6 +23,7 @@ var corpus = "";
 var context = 2;  //context is the number of words +- a word that we will look at
 var wordMapD = {};	//maps a word to its frequency
 var wordMapDPrime = {};	//word context pairs that are not in corpus
+var sizeOfVocabulary = 0;	//gets set by the number of keys in wordMapD
 
 fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
     if (!err){
@@ -52,7 +53,7 @@ var finishReadingFile = function() {
 		next1 = next2;
 	});
 
-	// console.log(wordMapD)
+	sizeOfVocabulary = _.keys(wordMapD).length;
 
 	// generate wordmap D prime
 	var countItemsInWordMapDPrime = 0;
@@ -78,6 +79,7 @@ var finishReadingFile = function() {
 		}
 	}
 	console.log(wordMapDPrime)
+
 
 
 	// trainModel(splitWords);
