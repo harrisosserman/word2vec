@@ -91,20 +91,25 @@ var trainModel = function() {
 
 	//initialize W, W Prime, and H matrices with random values between [-1, 1]
 	var W = [];	//sizeOfVocabulary x LAYER_1_SIZE
-	var WPrime = []; //sizeOfVocabulary x LAYER_1_SIZE
+	var WPrime = []; //LAYER_1_SIZE x sizeOfVocabulary
 	var H = [];	//LAYER_1_SIZE x 1
 	for (var row = 0; row < sizeOfVocabulary; row++) {
 		W[row] = [];
-		WPrime[row] = [];
 		for (var column = 0; column < LAYER_1_SIZE; column++) {
 			var randValueW = Math.random();
 			var isPositiveW = Math.random() >= 0.5 ? 1 : -1;
+			W[row][column] = randValueW * isPositiveW;
+		}
+	}
+	for (var row = 0; row < LAYER_1_SIZE; row++) {
+		WPrime[row] = [];
+		for (var column = 0; column < sizeOfVocabulary; column++) {
 			var randValueWPrime = Math.random();
 			var isPositiveWPrime = Math.random() >= 0.5 ? 1 : -1;
-			W[row][column] = randValueW * isPositiveW;
 			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
 		}
 	}
+
 
 	for (var k=0; k<LAYER_1_SIZE; k++) {
 		var randValueH = Math.random();
@@ -120,12 +125,13 @@ var trainModel = function() {
 					var result = createXInputVector(context, DMapKeys);
 					var X = result.xInput;
 					var nonzeroRows = result.nonzeroRows;
-					var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
+					var WTranspose = math.transpose(math.matrix(W))._data;	//convert WTranspose into a 2D array with _data
+					var Vc = math.matrix(WTranspose[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
 					for (c = 1; c < nonzeroRows.length; c++) {
-						Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
+						Vc = math.add(Vc, math.matrix(WTranspose[nonzeroRows[c]]));
 					}
-					Vw = math.matrix(math.transpose(math.matrix(WPrime)), math.matrix(H)); 
-					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(math.transpose(math.multiply(-1, Vc)), Vw))));
+					Vw = math.multiply(math.transpose(math.matrix(WPrime)), math.matrix(H)); 
+					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(math.transpose(math.multiply(Vc, -1)), Vw))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
 				}
 			}
