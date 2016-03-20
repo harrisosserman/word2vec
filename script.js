@@ -11,6 +11,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
+var math = require('mathjs');
 
 const MAX_SENTENCE_LENGTH = 1000;
 const TRAINING_ITERATIONS = 10;
@@ -108,17 +109,24 @@ var trainModel = function() {
 	for (var k=0; k<LAYER_1_SIZE; k++) {
 		var randValueH = Math.random();
 		var isPositiveH = Math.random() >= 0.5 ? 1 : -1;
-		H[k] = randValueH * isPositiveH;
+		H[k] = [randValueH * isPositiveH];
 	}
 
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
 			if (DMapKeys) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
-					context = wordMapD[DMapKeys[middleWord]];
-					var X = createXInputVector(context, DMapKeys);
-
-
+					context = wordMapD[DMapKeys[middleWord]][k];
+					var result = createXInputVector(context, DMapKeys);
+					var X = result.xInput;
+					var nonzeroRows = result.nonzeroRows;
+					var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
+					for (c = 1; c < nonzeroRows.length; c++) {
+						Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
+					}
+					Vw = math.matrix(math.transpose(math.matrix(WPrime)), math.matrix(H)); 
+					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(math.transpose(math.multiply(-1, Vc)), Vw))));
+					console.log("===intermediateOutput: ", intermediateOutput)
 				}
 			}
 			if (DPrimeMapKeys[middleWord]) {
@@ -132,15 +140,21 @@ var trainModel = function() {
 };
 
 var createXInputVector = function(context, keysFromWMap) {
+	//TODO: creating xInput array is unnecessary, but is nice from an understanding point of view
 	var outputArray = [];
+	var nonzeroRows = [];
 	for(var k=0; k<sizeOfVocabulary; k++) {
 		if (context.indexOf(keysFromWMap[k]) > -1) {
 			outputArray[k] = [1];
+			nonzeroRows.push(k);
 		} else {
 			outputArray[k] = [0];
 		}
 	}
-	return outputArray;
+	return {
+		xInput: outputArray,
+		nonzeroRows: nonzeroRows
+	};
 }
 
 var gradientAscentIteration = function() {
