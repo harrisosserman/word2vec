@@ -118,6 +118,9 @@ var trainModel = function() {
 		H[k] = [randValueH * isPositiveH];
 	}
 
+	var previousIterationSum = 0;
+	var currentIterationSum = 0;
+
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
 			if (DMapKeys[middleWord]) {
@@ -135,14 +138,16 @@ var trainModel = function() {
 					Vw = math.matrix(WPrimeTranspose[middleWord]);	//Vw is the ith row of WPrime where i = index of middle word
 					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(math.transpose(math.multiply(Vc, -1)), Vw))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
+					currentIterationSum += intermediateOutput;
 				}
 			}
-			if (DPrimeMapKeys[middleWord]) {
-				for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
-					context = wordMapDPrime[DPrimeMapKeys[middleWord]];
+			// TODO: REFACTOR AND GET THIS TO WORK WITH DPRIME WORDS WITHOUT COPIED CODE
+			// if (DPrimeMapKeys[middleWord]) {
+			// 	for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
+			// 		context = wordMapDPrime[DPrimeMapKeys[middleWord]];
 
-				}
-			}
+			// 	}
+			// }
 		}
 	}
 };
