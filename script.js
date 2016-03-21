@@ -109,6 +109,7 @@ var trainModel = function() {
 			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
 		}
 	}
+	var WPrimeTranspose = math.transpose(math.matrix(WPrime))._data;
 
 
 	for (var k=0; k<LAYER_1_SIZE; k++) {
@@ -119,18 +120,19 @@ var trainModel = function() {
 
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
-			if (DMapKeys) {
+			if (DMapKeys[middleWord]) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
 					var result = createXInputVector(context, DMapKeys);
 					var X = result.xInput;
 					var nonzeroRows = result.nonzeroRows;
-					var WTranspose = math.transpose(math.matrix(W))._data;	//convert WTranspose into a 2D array with _data
-					var Vc = math.matrix(WTranspose[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
-					for (c = 1; c < nonzeroRows.length; c++) {
-						Vc = math.add(Vc, math.matrix(WTranspose[nonzeroRows[c]]));
-					}
-					Vw = math.multiply(math.transpose(math.matrix(WPrime)), math.matrix(H)); 
+					// var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
+					// for (c = 1; c < nonzeroRows.length; c++) {
+					// 	Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
+					// }
+					// Vc = math.transpose(Vc);	//do a transpose at the end to convert Vc into p x 1 matrix
+					Vc = math.multiply(math.transpose(W), X);
+					Vw = math.matrix(WPrimeTranspose[middleWord]);	//Vw is the ith row of WPrime where i = index of middle word
 					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(math.transpose(math.multiply(Vc, -1)), Vw))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
 				}
