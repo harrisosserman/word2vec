@@ -118,9 +118,6 @@ var trainModel = function() {
 		H[k] = [randValueH * isPositiveH];
 	}
 
-	var previousIterationSum = 0;
-	var currentIterationSum = 0;
-
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
 			if (DMapKeys[middleWord]) {
@@ -129,16 +126,21 @@ var trainModel = function() {
 					var result = createXInputVector(context, DMapKeys);
 					var X = result.xInput;
 					var nonzeroRows = result.nonzeroRows;
-					// var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
-					// for (c = 1; c < nonzeroRows.length; c++) {
-					// 	Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
-					// }
-					// Vc = math.transpose(Vc);	//do a transpose at the end to convert Vc into p x 1 matrix
-					Vc = math.multiply(math.transpose(W), X);
-					Vw = math.matrix(WPrimeTranspose[middleWord]);	//Vw is the ith row of WPrime where i = index of middle word
-					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(math.transpose(math.multiply(Vc, -1)), Vw))._data));
+					var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
+					for (c = 1; c < nonzeroRows.length; c++) {
+						Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
+					}
+					Vc = math.transpose([Vc]);	//do a transpose at the end to convert Vc into p x 1 matrix
+					Vw = math.matrix([WPrimeTranspose[middleWord]]);	//Vw is the ith row of WPrime where i = index of middle word
+					console.log("Vc", math.matrix(Vc).size());
+					console.log("Vw", Vw.size());
+					console.log("Vw test: ", math.matrix([WPrimeTranspose[middleWord]]).size())
+					console.log("WPrimeTranspose", math.matrix(WPrimeTranspose).size())
+
+
+					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(Vw, math.multiply(Vc, -1)))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
-					currentIterationSum += intermediateOutput;
+					
 				}
 			}
 			// TODO: REFACTOR AND GET THIS TO WORK WITH DPRIME WORDS WITHOUT COPIED CODE
