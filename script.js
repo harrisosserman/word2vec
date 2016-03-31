@@ -140,7 +140,9 @@ var trainModel = function() {
 
 					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(Vw, math.multiply(Vc, -1)))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
-					
+
+					updateWMatrix(W, intermediateOutput, nonzeroRows);
+					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, nonzeroRows);
 				}
 			}
 			// TODO: REFACTOR AND GET THIS TO WORK WITH DPRIME WORDS WITHOUT COPIED CODE
@@ -172,6 +174,17 @@ var createXInputVector = function(context, keysFromWMap) {
 	};
 }
 
-var gradientAscentIteration = function() {
-
+var updateWMatrix = function(W, intermediateOutput, nonzeroRows) {
+	for (var c = 0; c < nonzeroRows.length; c++) {
+		W[nonzeroRows[c]] = math.add(intermediateOutput * LEARNING_RATE, W[nonzeroRows[c]])
+	}
+	W = math.matrix(W);
 };
+
+var updateWPrimeTransposeMatrix = function(WPrimeTranspose, intermediateOutput, nonzeroRows) {
+	for (var c = 0; c < nonzeroRows.length; c++) {
+		WPrimeTranspose[nonzeroRows[c]] = math.add(intermediateOutput * LEARNING_RATE, WPrimeTranspose[nonzeroRows[c]])
+	}	
+	WPrimeTranspose = math.matrix(WPrimeTranspose);
+}
+
