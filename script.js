@@ -132,11 +132,9 @@ var trainModel = function() {
 					}
 					Vc = math.transpose([Vc]);	//do a transpose at the end to convert Vc into p x 1 matrix
 					Vw = math.matrix([WPrimeTranspose[middleWord]]);	//Vw is the ith row of WPrime where i = index of middle word
-					console.log("Vc", math.matrix(Vc).size());
-					console.log("Vw", Vw.size());
-					console.log("Vw test: ", math.matrix([WPrimeTranspose[middleWord]]).size())
-					console.log("WPrimeTranspose", math.matrix(WPrimeTranspose).size())
-
+					// console.log("Vc", math.matrix(Vc).size());
+					// console.log("Vw", Vw.size());
+					// console.log("WPrimeTranspose", math.matrix(WPrimeTranspose).size())
 
 					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(Vw, math.multiply(Vc, -1)))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
