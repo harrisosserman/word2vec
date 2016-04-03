@@ -17,7 +17,7 @@ const MAX_SENTENCE_LENGTH = 1000;
 const TRAINING_ITERATIONS = 10;
 const LAYER_1_SIZE = 100;
 const BAG_OF_WORDS_WINDOW = 5;
-const K_VALUE_FOR_WORDMAP_D_PRIME = 5;
+const K_VALUE_FOR_WORDMAP_D_PRIME = 2;
 const LEARNING_RATE = .05;
 
 var filePath = path.join(__dirname, 'corpus.txt');
@@ -42,12 +42,23 @@ var finishReadingFile = function() {
 	var countItemsInWordMapD = 0;
 	// to avoid having this run n^2 time, store temporary variables
 	var prev2 = null, prev1 = null, current = null, next1 = null, next2 = null;
-	splitWords.forEach(function(word) {
+	splitWords.forEach(function(word, index) {
 		next2 = word;
 		if (current !== null) {
-			if (!wordMapD[current])	wordMapD[current] = [];
+			if (!wordMapD[current]) {
+				wordMapD[current] = [];
+			}	
+			if (_.isFunction(wordMapD[current])) {
+				//sometimes, the current word is a reserved word in JS (ex. word constructor)
+				// if it is, just skip it
+				return;
+			}
+			// console.log("current: ", current)
 			wordMapD[current].push([prev2, prev1, next1, next2]);	
 			countItemsInWordMapD++;
+			if (index % 10000 === 0) {
+				console.log("parsing file.  went through word count: ", index)
+			}
 		}
 		prev2 = prev1;
 		prev1 = current;
@@ -76,6 +87,9 @@ var finishReadingFile = function() {
 			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
 			wordMapDPrime[current].push([prev2, prev1, next1, next2]);	
 			countItemsInWordMapDPrime++;
+		}
+		if (countItemsInWordMapDPrime % 10000 === 0) {
+			console.log("added words to D Prime.  count: ", countItemsInWordMapDPrime)
 		}
 	}
 	console.log(wordMapDPrime)
@@ -123,36 +137,47 @@ var trainModel = function() {
 			if (DMapKeys[middleWord]) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
-					var result = createXInputVector(context, DMapKeys);
-					var X = result.xInput;
-					var nonzeroRows = result.nonzeroRows;
-					var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
-					for (c = 1; c < nonzeroRows.length; c++) {
-						Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
-					}
-					Vc = math.transpose([Vc]);	//do a transpose at the end to convert Vc into p x 1 matrix
-					Vw = math.matrix([WPrimeTranspose[middleWord]]);	//Vw is the ith row of WPrime where i = index of middle word
-					// console.log("Vc", math.matrix(Vc).size());
-					// console.log("Vw", Vw.size());
-					// console.log("WPrimeTranspose", math.matrix(WPrimeTranspose).size())
+					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 
-					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(Vw, math.multiply(Vc, -1)))._data));
+					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(result.Vw, math.multiply(result.Vc, -1)))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
 
-					updateWMatrix(W, intermediateOutput, nonzeroRows);
-					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, nonzeroRows);
+					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
+					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);
 				}
 			}
-			// TODO: REFACTOR AND GET THIS TO WORK WITH DPRIME WORDS WITHOUT COPIED CODE
-			// if (DPrimeMapKeys[middleWord]) {
-			// 	for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
-			// 		context = wordMapDPrime[DPrimeMapKeys[middleWord]];
+			if (DPrimeMapKeys[middleWord]) {
+				for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
+					context = wordMapDPrime[DPrimeMapKeys[middleWord]];
+					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
+					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(result.Vw, result.Vc))._data));					
+					console.log("===intermediateOutput: ", intermediateOutput)
+					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
+					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);					
 
-			// 	}
-			// }
+				}
+			}
 		}
 	}
 };
+
+var createVcVw = function(context, middleWord, DMapKeys, W, WPrimeTranspose) {
+	var result = createXInputVector(context, DMapKeys);
+	var X = result.xInput;
+	var nonzeroRows = result.nonzeroRows;
+	var Vc = math.matrix(W[nonzeroRows[0]]);	//initialize Vc to be the 0th context word W row
+	for (c = 1; c < nonzeroRows.length; c++) {
+		Vc = math.add(Vc, math.matrix(W[nonzeroRows[c]]));
+	}
+	Vc = math.transpose([Vc]);	//do a transpose at the end to convert Vc into p x 1 matrix
+	Vw = math.matrix([WPrimeTranspose[middleWord]]);	//Vw is the ith row of WPrime where i = index of middle word
+	return {
+		Vc: Vc,
+		Vw: Vw,
+		nonzeroRows: nonzeroRows
+	};
+};
+
 
 var createXInputVector = function(context, keysFromWMap) {
 	//TODO: creating xInput array is unnecessary, but is nice from an understanding point of view
