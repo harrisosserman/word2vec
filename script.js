@@ -10,12 +10,13 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
 var math = require('mathjs');
+var crypto = require('crypto-js');
 
 const MAX_SENTENCE_LENGTH = 1000;
 const TRAINING_ITERATIONS = 10;
 const LAYER_1_SIZE = 100;
 const BAG_OF_WORDS_WINDOW = 5;
-const K_VALUE_FOR_WORDMAP_D_PRIME = 2;
+const K_VALUE_FOR_WORDMAP_D_PRIME = 1;
 const LEARNING_RATE = .05;
 
 var filePath = path.join(__dirname, 'corpus.txt');
@@ -24,6 +25,7 @@ var context = 2;  //context is the number of words +- a word that we will look a
 var wordMapD = {};	//maps a word to its frequency
 var wordMapDPrime = {};	//word context pairs that are not in corpus
 var sizeOfVocabulary = 0;	//gets set by the number of keys in wordMapD
+var md5HashContext = {};	//md5 hash'ed list of [sorted context, word]
 
 fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
     if (!err){
@@ -52,6 +54,12 @@ var finishReadingFile = function() {
 				return;
 			}
 			wordMapD[current].push([prev2, prev1, next1, next2]);	
+			// insert the context into a hashmap so that I can more quickly figure out if that combination has already been put into list
+			var wordContextForHash = [prev2, prev1, next1, next2].sort();
+			wordContextForHash.push(current);
+			var listToMD5 = crypto.MD5(JSON.stringify(wordContextForHash)).toString();
+			md5HashContext[listToMD5] = true;
+
 			countItemsInWordMapD++;
 			if (index % 10000 === 0) {
 				console.log("parsing file.  went through word count: ", index)
@@ -67,26 +75,24 @@ var finishReadingFile = function() {
 	// generate wordmap D prime
 	var numberOfWords = splitWords.length;
 	var countItemsInWordMapDPrime = 0;
-	while (countItemsInWordMapDPrime < countItemsInWordMapD) {
-		var startTimeStamp = new Date().getTime()
+	while (countItemsInWordMapDPrime < K_VALUE_FOR_WORDMAP_D_PRIME * countItemsInWordMapD) {
 		prev1 = splitWords[Math.round(Math.random() * numberOfWords)];
 		prev2 = splitWords[Math.round(Math.random() * numberOfWords)];
 		current = splitWords[Math.round(Math.random() * numberOfWords)];
 		next1 = splitWords[Math.round(Math.random() * numberOfWords)];
 		next2 = splitWords[Math.round(Math.random() * numberOfWords)];
-		var potentialContext = [prev1, prev2, next1, next2].sort();
-		var endTimeStamp = new Date().getTime()
-		console.log(endTimeStamp - startTimeStamp)
 
 		var contextsForWord = wordMapD[current];
 		if (!contextsForWord) continue;
 		var foundMatch = false;
-		contextsForWord.forEach(function(listOfWords) {
-			listOfWords.sort();
-			if (listOfWords.toString() === contextsForWord.toString()) {
-				foundMatch = true;
-			}
-		});
+		var potentialContextForHash = [prev1, prev2, next1, next2].sort();
+		potentialContextForHash.push(current);
+		var md5Hash = crypto.MD5(JSON.stringify(potentialContextForHash)).toString();
+		if (md5HashContext[md5Hash]) {
+			console.log("was true.  value is: ", md5HashContext[md5Hash], md5Hash)
+			// this hash is in the WordMapD, so don't put it into D Prime
+			continue;
+		}
 		if (!foundMatch) {
 			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
 			if (_.isFunction(wordMapDPrime[current])) {
