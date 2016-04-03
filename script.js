@@ -1,12 +1,9 @@
 //steps:
-// Use negative sampling!
 //1.  Break the entire vocabulary into a map D where D contains map of (word, context) for all words and contexts
 // Make another map D' for the map (word, context) for all words and contexts not in the corpus
 // 2.  Pr(Z = 1 | (w, c)) = probability that a pair (w,c) is in the corpus
 // Pr(Z = 0 | (w, c)) = probability that a pair (w,c) is not in the corpus
 // 3.  Pr(Z = 1 | (w, c)) = (1/(1 + e^(-vcT * vw)))
-// 4.  31:39 into https://www.youtube.com/watch?v=nuirUEmbaJU explains the combined probability function
-// 5.  When running the function that you optimize, for every pair (w,c) that is in the corpus, use k pairs (w,c) that are not in the corpus (google found that optimization worked)
 
 var fs = require('fs');
 var path = require('path');
@@ -53,7 +50,6 @@ var finishReadingFile = function() {
 				// if it is, just skip it
 				return;
 			}
-			// console.log("current: ", current)
 			wordMapD[current].push([prev2, prev1, next1, next2]);	
 			countItemsInWordMapD++;
 			if (index % 10000 === 0) {
@@ -85,6 +81,9 @@ var finishReadingFile = function() {
 		});
 		if (!foundMatch) {
 			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
+			if (_.isFunction(wordMapDPrime[current])) {
+				console.log("word is a function! ", current)
+			}
 			wordMapDPrime[current].push([prev2, prev1, next1, next2]);	
 			countItemsInWordMapDPrime++;
 		}
@@ -92,7 +91,6 @@ var finishReadingFile = function() {
 			console.log("added words to D Prime.  count: ", countItemsInWordMapDPrime)
 		}
 	}
-	console.log(wordMapDPrime)
 	trainModel();
 };
 
@@ -138,10 +136,8 @@ var trainModel = function() {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
-
 					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(result.Vw, math.multiply(result.Vc, -1)))._data));
 					console.log("===intermediateOutput: ", intermediateOutput)
-
 					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
 					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);
 				}
@@ -180,7 +176,6 @@ var createVcVw = function(context, middleWord, DMapKeys, W, WPrimeTranspose) {
 
 
 var createXInputVector = function(context, keysFromWMap) {
-	//TODO: creating xInput array is unnecessary, but is nice from an understanding point of view
 	var outputArray = [];
 	var nonzeroRows = [];
 	for(var k=0; k<sizeOfVocabulary; k++) {
