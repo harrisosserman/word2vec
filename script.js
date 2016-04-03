@@ -11,6 +11,7 @@ var path = require('path');
 var _ = require('lodash');
 var math = require('mathjs');
 var crypto = require('crypto-js');
+var json2csv = require('json2csv');
 
 const MAX_SENTENCE_LENGTH = 1000;
 const TRAINING_ITERATIONS = 10;
@@ -150,6 +151,7 @@ var trainModel = function() {
 	console.log("initialized H")
 
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
+		writeVectorUpdatesToCSV(DMapKeys, WPrimeTranspose);
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord++) {
 			if (DMapKeys[middleWord]) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
@@ -223,5 +225,27 @@ var updateWPrimeTransposeMatrix = function(WPrimeTranspose, intermediateOutput, 
 		WPrimeTranspose[nonzeroRows[c]] = math.add(intermediateOutput * LEARNING_RATE, WPrimeTranspose[nonzeroRows[c]])
 	}	
 	WPrimeTranspose = math.matrix(WPrimeTranspose);
+}
+
+var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
+	var spreadsheetHeader = ['word'];
+	for (var dimension = 0; dimension < LAYER_1_SIZE; dimension++) {
+		spreadsheetHeader.push((dimension + 1).toString());
+	}
+	var spreadsheetData = [];
+	for (var wordIndex = 0; wordIndex < sizeOfVocabulary; wordIndex++) {
+		var wordForSpreadsheet = {
+			word: DMapKeys[wordIndex]
+		};
+		WPrimeTranspose[wordIndex].forEach(function(coordinate, index) {
+			wordForSpreadsheet[(index + 1).toString()] = coordinate;
+		});
+		spreadsheetData.push(wordForSpreadsheet);
+	}
+    json2csv({ data: spreadsheetData, fields: spreadsheetHeader}, function(err, successResult) {
+        if (err) console.log("there is an error! ", err);
+        console.log("wrote file")
+        fs.writeFileSync('word_vectors.csv', successResult);
+      }); 
 }
 
