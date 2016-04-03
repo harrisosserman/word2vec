@@ -1,3 +1,4 @@
+// Create a corpus and put it into this directory with name corpus.txt
 //steps:
 //1.  Break the entire vocabulary into a map D where D contains map of (word, context) for all words and contexts
 // Make another map D' for the map (word, context) for all words and contexts not in the corpus
@@ -62,20 +63,27 @@ var finishReadingFile = function() {
 		next1 = next2;
 	});
 
+	console.log("starting to generate d prime")
 	// generate wordmap D prime
+	var numberOfWords = splitWords.length;
 	var countItemsInWordMapDPrime = 0;
 	while (countItemsInWordMapDPrime < countItemsInWordMapD) {
-		prev1 = splitWords[Math.round(Math.random() * splitWords.length)];
-		prev2 = splitWords[Math.round(Math.random() * splitWords.length)];
-		current = splitWords[Math.round(Math.random() * splitWords.length)];
-		next1 = splitWords[Math.round(Math.random() * splitWords.length)];
-		next2 = splitWords[Math.round(Math.random() * splitWords.length)];
+		var startTimeStamp = new Date().getTime()
+		prev1 = splitWords[Math.round(Math.random() * numberOfWords)];
+		prev2 = splitWords[Math.round(Math.random() * numberOfWords)];
+		current = splitWords[Math.round(Math.random() * numberOfWords)];
+		next1 = splitWords[Math.round(Math.random() * numberOfWords)];
+		next2 = splitWords[Math.round(Math.random() * numberOfWords)];
+		var potentialContext = [prev1, prev2, next1, next2].sort();
+		var endTimeStamp = new Date().getTime()
+		console.log(endTimeStamp - startTimeStamp)
 
 		var contextsForWord = wordMapD[current];
 		if (!contextsForWord) continue;
 		var foundMatch = false;
 		contextsForWord.forEach(function(listOfWords) {
-			if (listOfWords[0] === prev1 && listOfWords[1] === prev2 && listOfWords[2] === next1 && listOfWords[3] === next2) {
+			listOfWords.sort();
+			if (listOfWords.toString() === contextsForWord.toString()) {
 				foundMatch = true;
 			}
 		});
@@ -83,6 +91,7 @@ var finishReadingFile = function() {
 			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
 			if (_.isFunction(wordMapDPrime[current])) {
 				console.log("word is a function! ", current)
+				return;
 			}
 			wordMapDPrime[current].push([prev2, prev1, next1, next2]);	
 			countItemsInWordMapDPrime++;
@@ -101,6 +110,7 @@ var trainModel = function() {
 	var context;
 	sizeOfVocabulary = DMapKeys.length;
 
+	console.log("starting to initialize W with size of vocabulary: ", sizeOfVocabulary)
 	//initialize W, W Prime, and H matrices with random values between [-1, 1]
 	var W = [];	//sizeOfVocabulary x LAYER_1_SIZE
 	var WPrime = []; //LAYER_1_SIZE x sizeOfVocabulary
@@ -113,6 +123,7 @@ var trainModel = function() {
 			W[row][column] = randValueW * isPositiveW;
 		}
 	}
+	console.log("initialized W")
 	for (var row = 0; row < LAYER_1_SIZE; row++) {
 		WPrime[row] = [];
 		for (var column = 0; column < sizeOfVocabulary; column++) {
@@ -121,14 +132,16 @@ var trainModel = function() {
 			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
 		}
 	}
+	console.log("initialized W Prime")
 	var WPrimeTranspose = math.transpose(math.matrix(WPrime))._data;
-
+	console.log("initialized W Prime Transpose")
 
 	for (var k=0; k<LAYER_1_SIZE; k++) {
 		var randValueH = Math.random();
 		var isPositiveH = Math.random() >= 0.5 ? 1 : -1;
 		H[k] = [randValueH * isPositiveH];
 	}
+	console.log("initialized H")
 
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
