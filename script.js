@@ -150,7 +150,7 @@ var trainModel = function() {
 	console.log("initialized H")
 
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
-		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord) {
+		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord++) {
 			if (DMapKeys[middleWord]) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
