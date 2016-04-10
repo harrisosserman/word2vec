@@ -159,7 +159,7 @@ var trainModel = function() {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
-					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(result.Vw, math.multiply(result.Vc, -1)))._data));
+					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
 					console.log("===intermediateOutput: ", intermediateOutput)
 					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
 					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);
@@ -169,7 +169,7 @@ var trainModel = function() {
 				for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
 					context = wordMapDPrime[DPrimeMapKeys[middleWord]];
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
-					var intermediateOutput = Math.log(1 / (1 + math.exp(math.multiply(result.Vw, result.Vc))._data));					
+					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);				
 					console.log("===intermediateOutput: ", intermediateOutput)
 					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
 					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);					
@@ -179,6 +179,10 @@ var trainModel = function() {
 		}
 	}
 };
+
+var generateIntermediateOutputForContext = function(Vc, Vw, scalarMultiplier) {
+	return Math.log(1 / (1 + math.exp(math.multiply(math.matrix(Vw), math.multiply(math.matrix(Vc), scalarMultiplier)))._data));
+}
 
 var createVcVw = function(context, middleWord, DMapKeys, W, WPrimeTranspose) {
 	var result = createXInputVector(context, DMapKeys);
@@ -253,6 +257,7 @@ var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
 
 module.exports ={
 	createVcVw: createVcVw,
-	readFile: readFile
+	readFile: readFile,
+	generateIntermediateOutputForContext: generateIntermediateOutputForContext
 };
 

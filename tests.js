@@ -45,4 +45,22 @@ describe('One iteration of algorithm', function() {
 		assert(Vw[0][0] === 0.5, 'each element should have a value of 0.5 because of how the WPrime was initialized')
 	});
 
+	it('should generate intermediate output each iteration correctly', function() {
+		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
+		var checkScalarMultiplicationOutput = math.multiply(math.matrix(result.Vc), -1)._data;
+		assert(checkScalarMultiplicationOutput.length === LAYER_1_SIZE, 'number of rows should not change')
+		assert(checkScalarMultiplicationOutput[0].length === 1, 'number of columns should not change')
+		assert(checkScalarMultiplicationOutput[0][0] === -4, "the elements should all be -4")
+		
+		var intermediateOutputForDMap = generateModel.generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
+		//intermediateOutputForDMap should be 18.233275993303582
+		assert(intermediateOutputForDMap > 18, 'output should be a number greater than 18')
+		assert(intermediateOutputForDMap < 19, 'output should be a number less than 19')
+
+		var intermediateOutputForDPrimeMap = generateModel.generateIntermediateOutputForContext(result.Vc, result.Vw, 1);
+		//intermediateOutputForDPrimeMap should be -21.11879184571426
+		assert(intermediateOutputForDPrimeMap > -22, 'output should be a number greater than -22')
+		assert(intermediateOutputForDPrimeMap < -21, 'output should be a number less than -21')
+	});
+
 });
