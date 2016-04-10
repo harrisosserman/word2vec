@@ -8,7 +8,7 @@ describe('One iteration of algorithm', function() {
 	var LAYER_1_SIZE = 10;	//in the main script, it's 100, but for the test, I wanted to make it smaller and simpler to reason about
 	beforeEach(function() {
 		context = ["hello", "my", "is", "harris"];
-		middleWord = "name";
+		middleWord = 8;	//middleword is the index of the middle word in DMapKeys
 		DMapKeys = ["if", "you", "ain't", "first", "you're", "last", "hello", "my", "name", "is", "harris"];
 		W = [];
 		for (var row = 0; row < DMapKeys.length; row++) {
@@ -40,8 +40,9 @@ describe('One iteration of algorithm', function() {
 	it('should generate Vw vector correctly', function() {
 		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 		var Vw = result.Vw;
-		console.log(Vw);
-		assert(false)
+		assert(Vw.length === 1, 'there should be only 1 row')
+		assert(Vw[0].length === LAYER_1_SIZE, 'the numver of columns should equal the LAYER_1_SIZE')
+		assert(Vw[0][0] === 0.5, 'each element should have a value of 0.5 because of how the WPrime was initialized')
 	});
 
 });

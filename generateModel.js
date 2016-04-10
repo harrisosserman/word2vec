@@ -192,7 +192,7 @@ var createVcVw = function(context, middleWord, DMapKeys, W, WPrimeTranspose) {
 	Vw = math.matrix([WPrimeTranspose[middleWord]]);	//Vw is the ith row of WPrime where i = index of middle word
 	return {
 		Vc: Vc,
-		Vw: Vw,
+		Vw: Vw._data,
 		nonzeroRows: nonzeroRows
 	};
 };
