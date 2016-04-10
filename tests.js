@@ -73,4 +73,14 @@ describe('One iteration of algorithm', function() {
 		assert(W[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")
 	});
 
+	it('should update W Prime matrix correctly after each iteration', function() {
+		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
+		var intermediateOutputForDMap = generateModel.generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
+		generateModel.updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutputForDMap, result.nonzeroRows, 0.05);
+		assert(WPrimeTranspose.length === DMapKeys.length, 'W Prime Tranpose should have DMapKeys rows')
+		assert(WPrimeTranspose[0].length === LAYER_1_SIZE, 'W Prime Transpose should have HIDDEN_LAYER columns')
+		assert(WPrimeTranspose[0][0] === 0.5, "rows that are not part of context should remain unchanged")
+		assert(WPrimeTranspose[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")		
+	});
+
 });
