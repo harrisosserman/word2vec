@@ -1,5 +1,6 @@
 var math = require('mathjs');
 var generateModel = require('./generateModel.js');
+var assert = require('chai').assert;
 
 
 describe('One iteration of algorithm', function() {
@@ -30,9 +31,17 @@ describe('One iteration of algorithm', function() {
 
 	it('should generate Vc vector correctly', function() {
 		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
-		console.log(result);
-		assert(true);
+		var Vc = result.Vc;
+		assert(Vc.length === LAYER_1_SIZE, 'the number of rows should equal the LAYER_1_SIZE')
+		assert(Vc[0].length === 1, 'the number of columns should be 1')
+		assert(Vc[0][0] === 4, 'each element should have a value of 4 because of matrix multiplication')
+	});
 
+	it('should generate Vw vector correctly', function() {
+		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
+		var Vw = result.Vw;
+		console.log(Vw);
+		assert(false)
 	});
 
 });

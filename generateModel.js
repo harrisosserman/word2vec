@@ -201,7 +201,7 @@ var createVcVw = function(context, middleWord, DMapKeys, W, WPrimeTranspose) {
 var createXInputVector = function(context, keysFromWMap) {
 	var outputArray = [];
 	var nonzeroRows = [];
-	for(var k=0; k<sizeOfVocabulary; k++) {
+	for(var k=0; k<keysFromWMap.length; k++) {
 		if (context.indexOf(keysFromWMap[k]) > -1) {
 			outputArray[k] = [1];
 			nonzeroRows.push(k);
