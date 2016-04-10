@@ -63,4 +63,14 @@ describe('One iteration of algorithm', function() {
 		assert(intermediateOutputForDPrimeMap < -21, 'output should be a number less than -21')
 	});
 
+	it('should update W matrix correctly after each iteration', function() {
+		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
+		var intermediateOutputForDMap = generateModel.generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
+		generateModel.updateWMatrix(W, intermediateOutputForDMap, result.nonzeroRows, 0.05);
+		assert(W.length === DMapKeys.length, 'W should have DMapKeys rows')
+		assert(W[0].length === LAYER_1_SIZE, 'W should have HIDDEN_LAYER columns')
+		assert(W[0][0] === 1, "rows that are not part of context should remain unchanged")
+		assert(W[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")
+	});
+
 });

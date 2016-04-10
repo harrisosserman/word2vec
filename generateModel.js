@@ -161,8 +161,8 @@ var trainModel = function() {
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
 					console.log("===intermediateOutput: ", intermediateOutput)
-					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
-					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);
+					updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
+					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
 				}
 			}
 			if (DPrimeMapKeys[middleWord]) {
@@ -171,8 +171,8 @@ var trainModel = function() {
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);				
 					console.log("===intermediateOutput: ", intermediateOutput)
-					updateWMatrix(W, intermediateOutput, result.nonzeroRows);
-					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows);					
+					updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
+					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);					
 
 				}
 			}
@@ -219,16 +219,17 @@ var createXInputVector = function(context, keysFromWMap) {
 	};
 }
 
-var updateWMatrix = function(W, intermediateOutput, nonzeroRows) {
+var updateWMatrix = function(W, intermediateOutput, nonzeroRows, learningRate) {
 	for (var c = 0; c < nonzeroRows.length; c++) {
-		W[nonzeroRows[c]] = math.add(intermediateOutput * LEARNING_RATE, W[nonzeroRows[c]])
+		W[nonzeroRows[c]] = math.add(intermediateOutput * learningRate, W[nonzeroRows[c]])
 	}
+	//TODO: CHECK IF I SHOULD BE RETURNING THIS AS A MATH MATRIX OR NOT
 	W = math.matrix(W);
 };
 
-var updateWPrimeTransposeMatrix = function(WPrimeTranspose, intermediateOutput, nonzeroRows) {
+var updateWPrimeTransposeMatrix = function(WPrimeTranspose, intermediateOutput, nonzeroRows, learningRate) {
 	for (var c = 0; c < nonzeroRows.length; c++) {
-		WPrimeTranspose[nonzeroRows[c]] = math.add(intermediateOutput * LEARNING_RATE, WPrimeTranspose[nonzeroRows[c]])
+		WPrimeTranspose[nonzeroRows[c]] = math.add(intermediateOutput * learningRate, WPrimeTranspose[nonzeroRows[c]])
 	}	
 	WPrimeTranspose = math.matrix(WPrimeTranspose);
 }
@@ -258,6 +259,8 @@ var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
 module.exports ={
 	createVcVw: createVcVw,
 	readFile: readFile,
-	generateIntermediateOutputForContext: generateIntermediateOutputForContext
+	generateIntermediateOutputForContext: generateIntermediateOutputForContext,
+	updateWMatrix: updateWMatrix,
+	updateWPrimeTransposeMatrix: updateWPrimeTransposeMatrix
 };
 
