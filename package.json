@@ -12,8 +12,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node script.js"
+    "test": "mocha tests.js",
+    "start": "node runner.js"
   },
   "repository": {
     "type": "git",
