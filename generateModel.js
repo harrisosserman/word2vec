@@ -163,7 +163,7 @@ var trainModel = function() {
 					// It is possible that intermediateOutput is NaN
 					// This can happen if we are taking the log of something very close to 0
 					// See generateIntermediateOutputForContext for more information
-					if (!isNaN(intermediateOutput)) {
+					if (!isNaN(intermediateOutput) && isFinite(intermediateOutput)) {
 						console.log("===intermediateOutput: ", intermediateOutput)
 						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
 						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);						
@@ -175,7 +175,7 @@ var trainModel = function() {
 					context = wordMapDPrime[DPrimeMapKeys[middleWord]];
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);	
-					if (!isNaN(intermediateOutput)) {
+					if (!isNaN(intermediateOutput) && isFinite(intermediateOutput)) {
 						console.log("===intermediateOutput: ", intermediateOutput)
 						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
 						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);	
@@ -187,6 +187,7 @@ var trainModel = function() {
 };
 
 var generateIntermediateOutputForContext = function(Vc, Vw, scalarMultiplier) {
+	console.log(Math.exp(math.multiply(math.matrix(Vw), math.multiply(math.matrix(Vc), scalarMultiplier))._data));
 	return Math.log(1 / (1 + math.exp(math.multiply(math.matrix(Vw), math.multiply(math.matrix(Vc), scalarMultiplier)))._data));
 }
 
