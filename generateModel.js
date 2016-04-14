@@ -160,20 +160,26 @@ var trainModel = function() {
 					context = wordMapD[DMapKeys[middleWord]][k];
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
-					console.log("===intermediateOutput: ", intermediateOutput)
-					updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
-					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
+					// It is possible that intermediateOutput is NaN
+					// This can happen if we are taking the log of something very close to 0
+					// See generateIntermediateOutputForContext for more information
+					if (!isNaN(intermediateOutput)) {
+						console.log("===intermediateOutput: ", intermediateOutput)
+						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
+						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);						
+					} 
 				}
 			}
 			if (DPrimeMapKeys[middleWord]) {
 				for (var j=0; j<wordMapDPrime[DPrimeMapKeys[middleWord]]; j++) {
 					context = wordMapDPrime[DPrimeMapKeys[middleWord]];
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
-					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);				
-					console.log("===intermediateOutput: ", intermediateOutput)
-					updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
-					updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);					
-
+					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);	
+					if (!isNaN(intermediateOutput)) {
+						console.log("===intermediateOutput: ", intermediateOutput)
+						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
+						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);	
+					}							
 				}
 			}
 		}
