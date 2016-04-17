@@ -42,9 +42,58 @@ var readFile = function() {
 var finishReadingFile = function() {
 	// break into words and count the number of times each word exists
 	var splitWords = corpus.split(" ");
+	// Introduce subsampling by ignoring certain words in the corpus
+	// Words that show up more frequently have a better chance of being filtered out
+	var wordFrequency = {};
+	splitWords.forEach(function(word) {
+		if (!wordFrequency[word]) wordFrequency[word] = 0;
+		wordFrequency[word]++;
+	});
+
+
 	var countItemsInWordMapD = 0;
 	// to avoid having this run n^2 time, store temporary variables
-	var prev2 = null, prev1 = null, current = null, next1 = null, next2 = null;
+	var prev2 = null, prev1 = null, current = null, next1 = null, next2 = null, word = null;
+	for (var wordIndex = 0; wordIndex < splitWords.length; wordIndex++) {
+		word = splitWords[wordIndex];
+		// the word2vec paper uses 10^-5 as the numerator
+		// determine the probability that you should subsample (ignore) this word
+		// once probability is determined, then get a random number and if it is less than the probability, then remove the word
+		// makes it very likely that high probability words will be removed
+		var probabilityOfSubsampling = 1 - Math.sqrt(Math.pow(10, -5) / (wordFrequency[word] / splitWords.length));
+		var shouldSubsample = Math.random() < probabilityOfSubsampling;
+		if (shouldSubsample) {
+			continue;
+		}
+		next2 = word;
+		if (current !== null) {
+			if (!wordMapD[current]) {
+				wordMapD[current] = [];
+			}	
+			if (_.isFunction(wordMapD[current])) {
+				//sometimes, the current word is a reserved word in JS (ex. word constructor)
+				// if it is, just skip it
+				return;
+			}
+			wordMapD[current].push([prev2, prev1, next1, next2]);	
+			// insert the context into a hashmap so that I can more quickly figure out if that combination has already been put into list
+			var wordContextForHash = [prev2, prev1, next1, next2].sort();
+			wordContextForHash.push(current);
+			var listToMD5 = crypto.MD5(JSON.stringify(wordContextForHash)).toString();
+			md5HashContext[listToMD5] = true;
+
+			countItemsInWordMapD++;
+			if (wordIndex % 10000 === 0) {
+				console.log("parsing file.  went through word count: ", index)
+			}
+		}
+		prev2 = prev1;
+		prev1 = current;
+		current = next1;
+		next1 = next2;		
+
+	}
+
 	splitWords.forEach(function(word, index) {
 		next2 = word;
 		if (current !== null) {
