@@ -90,8 +90,7 @@ describe('One iteration of algorithm', function() {
 		assert(W[0].length === 10, 'there should be 10 columns in the W matrix');
 		for(var row = 0; row < 5; row++) {
 			for (var column = 0; column < 10; column++) {
-				assert(W[row][column] >= -1, 'each element cannot be less than -1');
-				assert(W[row][column] <= 1, 'each element cannot be greater than 1');
+				assert(W[row][column] === 0, 'each element should be 0');
 			}
 		}
 	});
@@ -103,8 +102,7 @@ describe('One iteration of algorithm', function() {
 		assert(WPrime[0].length === 5, 'there should be 5 columns in the W Prime matrix');
 		for(var row = 0; row < 10; row++) {
 			for (var column = 0; column < 5; column++) {
-				assert(WPrime[row][column] >= -1, 'each element cannot be less than -1');
-				assert(WPrime[row][column] <= 1, 'each element cannot be greater than 1');
+				assert(WPrime[row][column] === 0, 'each element should be 0');
 			}
 		}
 	});	
@@ -115,8 +113,7 @@ describe('One iteration of algorithm', function() {
 		assert(H.length === 10, 'H matrix should have 10 rows');
 		assert(H[0].length === 1, 'each row in H should have just 1 element')
 		for (var row = 0; row < 10; row++) {
-			assert(H[row][0] >= -1, 'each element cannot be less than -1')
-			assert(H[row][0] <= 1, 'each element cannot be greater than 1');
+			assert(H[row][0] === 0, 'each element should be 0');
 		}
 	});
 

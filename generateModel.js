@@ -116,9 +116,7 @@ var initializeWMatrix = function(W, sizeOfVocabulary, hiddenLayerSize) {
 	for (var row = 0; row < sizeOfVocabulary; row++) {
 		W[row] = [];
 		for (var column = 0; column < hiddenLayerSize; column++) {
-			var randValueW = Math.random();
-			var isPositiveW = Math.random() >= 0.5 ? 1 : -1;
-			W[row][column] = randValueW * isPositiveW;
+			W[row][column] = 0;
 		}
 	}
 }
@@ -127,18 +125,14 @@ var initializeWPrimeMatrix = function(WPrime, sizeOfVocabulary, hiddenLayerSize)
 	for (var row = 0; row < hiddenLayerSize; row++) {
 		WPrime[row] = [];
 		for (var column = 0; column < sizeOfVocabulary; column++) {
-			var randValueWPrime = Math.random();
-			var isPositiveWPrime = Math.random() >= 0.5 ? 1 : -1;
-			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
+			WPrime[row][column] = 0;
 		}
 	}
 }
 
 var initializeHMatrix = function(H, hiddenLayerSize) {
 	for (var k=0; k<hiddenLayerSize; k++) {
-		var randValueH = Math.random();
-		var isPositiveH = Math.random() >= 0.5 ? 1 : -1;
-		H[k] = [randValueH * isPositiveH];
+		H[k] = [0];
 	}
 }
 
