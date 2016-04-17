@@ -83,4 +83,41 @@ describe('One iteration of algorithm', function() {
 		assert(WPrimeTranspose[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")		
 	});
 
+	it('should initialize W matrix correctly', function() {
+		var W = [];
+		generateModel.initializeWMatrix(W, 5, 10);
+		assert(W.length === 5, 'there should be 5 rows in the W matrix');
+		assert(W[0].length === 10, 'there should be 10 columns in the W matrix');
+		for(var row = 0; row < 5; row++) {
+			for (var column = 0; column < 10; column++) {
+				assert(W[row][column] >= -1, 'each element cannot be less than -1');
+				assert(W[row][column] <= 1, 'each element cannot be greater than 1');
+			}
+		}
+	});
+
+	it('should initialize W Prime matrix correctly', function() {
+		var WPrime = [];
+		generateModel.initializeWPrimeMatrix(WPrime, 5, 10);
+		assert(WPrime.length === 10, 'there should be 10 rows in the W Prime matrix');
+		assert(WPrime[0].length === 5, 'there should be 5 columns in the W Prime matrix');
+		for(var row = 0; row < 10; row++) {
+			for (var column = 0; column < 5; column++) {
+				assert(WPrime[row][column] >= -1, 'each element cannot be less than -1');
+				assert(WPrime[row][column] <= 1, 'each element cannot be greater than 1');
+			}
+		}
+	});	
+
+	it('should initialize H matrix correctly', function() {
+		var H = [];
+		generateModel.initializeHMatrix(H, 10);
+		assert(H.length === 10, 'H matrix should have 10 rows');
+		assert(H[0].length === 1, 'each row in H should have just 1 element')
+		for (var row = 0; row < 10; row++) {
+			assert(H[row][0] >= -1, 'each element cannot be less than -1')
+			assert(H[row][0] <= 1, 'each element cannot be greater than 1');
+		}
+	});
+
 });

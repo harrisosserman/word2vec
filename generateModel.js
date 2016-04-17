@@ -112,6 +112,36 @@ var finishReadingFile = function() {
 	trainModel();
 };
 
+var initializeWMatrix = function(W, sizeOfVocabulary, hiddenLayerSize) {
+	for (var row = 0; row < sizeOfVocabulary; row++) {
+		W[row] = [];
+		for (var column = 0; column < hiddenLayerSize; column++) {
+			var randValueW = Math.random();
+			var isPositiveW = Math.random() >= 0.5 ? 1 : -1;
+			W[row][column] = randValueW * isPositiveW;
+		}
+	}
+}
+
+var initializeWPrimeMatrix = function(WPrime, sizeOfVocabulary, hiddenLayerSize) {
+	for (var row = 0; row < hiddenLayerSize; row++) {
+		WPrime[row] = [];
+		for (var column = 0; column < sizeOfVocabulary; column++) {
+			var randValueWPrime = Math.random();
+			var isPositiveWPrime = Math.random() >= 0.5 ? 1 : -1;
+			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
+		}
+	}
+}
+
+var initializeHMatrix = function(H, hiddenLayerSize) {
+	for (var k=0; k<hiddenLayerSize; k++) {
+		var randValueH = Math.random();
+		var isPositiveH = Math.random() >= 0.5 ? 1 : -1;
+		H[k] = [randValueH * isPositiveH];
+	}
+}
+
 var trainModel = function() {
 	var oldOutput, newOutput;
 	var DMapKeys = _.keys(wordMapD);
@@ -124,33 +154,10 @@ var trainModel = function() {
 	var W = [];	//sizeOfVocabulary x LAYER_1_SIZE
 	var WPrime = []; //LAYER_1_SIZE x sizeOfVocabulary
 	var H = [];	//LAYER_1_SIZE x 1
-	for (var row = 0; row < sizeOfVocabulary; row++) {
-		W[row] = [];
-		for (var column = 0; column < LAYER_1_SIZE; column++) {
-			var randValueW = Math.random();
-			var isPositiveW = Math.random() >= 0.5 ? 1 : -1;
-			W[row][column] = randValueW * isPositiveW;
-		}
-	}
-	console.log("initialized W")
-	for (var row = 0; row < LAYER_1_SIZE; row++) {
-		WPrime[row] = [];
-		for (var column = 0; column < sizeOfVocabulary; column++) {
-			var randValueWPrime = Math.random();
-			var isPositiveWPrime = Math.random() >= 0.5 ? 1 : -1;
-			WPrime[row][column] = randValueWPrime * isPositiveWPrime;
-		}
-	}
-	console.log("initialized W Prime")
+	initializeWMatrix(W, sizeOfVocabulary, LAYER_1_SIZE);
+	initializeWPrimeMatrix(WPrime, sizeOfVocabulary, LAYER_1_SIZE);
 	var WPrimeTranspose = math.transpose(math.matrix(WPrime))._data;
-	console.log("initialized W Prime Transpose")
-
-	for (var k=0; k<LAYER_1_SIZE; k++) {
-		var randValueH = Math.random();
-		var isPositiveH = Math.random() >= 0.5 ? 1 : -1;
-		H[k] = [randValueH * isPositiveH];
-	}
-	console.log("initialized H")
+	initializeHMatrix(H, LAYER_1_SIZE);
 
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		writeVectorUpdatesToCSV(DMapKeys, WPrimeTranspose);
@@ -268,6 +275,9 @@ module.exports ={
 	readFile: readFile,
 	generateIntermediateOutputForContext: generateIntermediateOutputForContext,
 	updateWMatrix: updateWMatrix,
-	updateWPrimeTransposeMatrix: updateWPrimeTransposeMatrix
+	updateWPrimeTransposeMatrix: updateWPrimeTransposeMatrix,
+	initializeHMatrix: initializeHMatrix,
+	initializeWMatrix: initializeWMatrix,
+	initializeWPrimeMatrix: initializeWPrimeMatrix
 };
 
