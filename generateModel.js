@@ -73,7 +73,7 @@ var finishReadingFile = function() {
 			if (_.isFunction(wordMapD[current])) {
 				//sometimes, the current word is a reserved word in JS (ex. word constructor)
 				// if it is, just skip it
-				return;
+				continue;
 			}
 			wordMapD[current].push([prev2, prev1, next1, next2]);	
 			// insert the context into a hashmap so that I can more quickly figure out if that combination has already been put into list
@@ -93,35 +93,6 @@ var finishReadingFile = function() {
 		next1 = next2;		
 
 	}
-
-	splitWords.forEach(function(word, index) {
-		next2 = word;
-		if (current !== null) {
-			if (!wordMapD[current]) {
-				wordMapD[current] = [];
-			}	
-			if (_.isFunction(wordMapD[current])) {
-				//sometimes, the current word is a reserved word in JS (ex. word constructor)
-				// if it is, just skip it
-				return;
-			}
-			wordMapD[current].push([prev2, prev1, next1, next2]);	
-			// insert the context into a hashmap so that I can more quickly figure out if that combination has already been put into list
-			var wordContextForHash = [prev2, prev1, next1, next2].sort();
-			wordContextForHash.push(current);
-			var listToMD5 = crypto.MD5(JSON.stringify(wordContextForHash)).toString();
-			md5HashContext[listToMD5] = true;
-
-			countItemsInWordMapD++;
-			if (index % 10000 === 0) {
-				console.log("parsing file.  went through word count: ", index)
-			}
-		}
-		prev2 = prev1;
-		prev1 = current;
-		current = next1;
-		next1 = next2;
-	});
 
 	console.log("starting to generate d prime")
 	// generate wordmap D prime
@@ -149,7 +120,7 @@ var finishReadingFile = function() {
 			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
 			if (_.isFunction(wordMapDPrime[current])) {
 				console.log("word is a function! ", current)
-				return;
+				continue;
 			}
 			wordMapDPrime[current].push([prev2, prev1, next1, next2]);	
 			countItemsInWordMapDPrime++;
