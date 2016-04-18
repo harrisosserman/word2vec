@@ -50,7 +50,7 @@ var finishReadingFile = function() {
 		wordFrequency[word]++;
 	});
 
-
+	console.log("total splitWords length: ", splitWords.length)
 	var countItemsInWordMapD = 0;
 	// to avoid having this run n^2 time, store temporary variables
 	var prev2 = null, prev1 = null, current = null, next1 = null, next2 = null, word = null;
@@ -84,7 +84,7 @@ var finishReadingFile = function() {
 
 			countItemsInWordMapD++;
 			if (wordIndex % 10000 === 0) {
-				console.log("parsing file.  went through word count: ", index)
+				console.log("parsing file.  went through word count: ", wordIndex)
 			}
 		}
 		prev2 = prev1;
