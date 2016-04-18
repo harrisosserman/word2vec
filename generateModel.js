@@ -176,6 +176,9 @@ var trainModel = function() {
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		writeVectorUpdatesToCSV(DMapKeys, WPrimeTranspose);
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord++) {
+			if (middleWord % 1000 === 0) {
+				console.log("iteration: ", iterationCount, " index: ", middleWord, " total words: ", sizeOfVocabulary);
+			}			
 			if (DMapKeys[middleWord]) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
@@ -185,7 +188,6 @@ var trainModel = function() {
 					// This can happen if we are taking the log of something very close to 0
 					// See generateIntermediateOutputForContext for more information
 					if (!isNaN(intermediateOutput) && isFinite(intermediateOutput)) {
-						console.log("===intermediateOutput: ", intermediateOutput)
 						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
 						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);						
 					} 
@@ -197,7 +199,6 @@ var trainModel = function() {
 					var result = createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
 					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);	
 					if (!isNaN(intermediateOutput) && isFinite(intermediateOutput)) {
-						console.log("===intermediateOutput: ", intermediateOutput)
 						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
 						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);	
 					}							
@@ -208,7 +209,6 @@ var trainModel = function() {
 };
 
 var generateIntermediateOutputForContext = function(Vc, Vw, scalarMultiplier) {
-	console.log(Math.exp(math.multiply(math.matrix(Vw), math.multiply(math.matrix(Vc), scalarMultiplier))._data));
 	return Math.log(1 / (1 + math.exp(math.multiply(math.matrix(Vw), math.multiply(math.matrix(Vc), scalarMultiplier)))._data));
 }
 
@@ -279,7 +279,7 @@ var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
 	}
     json2csv({ data: spreadsheetData, fields: spreadsheetHeader}, function(err, successResult) {
         if (err) console.log("there is an error! ", err);
-        console.log("wrote file")
+        console.log("=====wrote word vectors file======")
         fs.writeFileSync('word_vectors.csv', successResult);
       }); 
 }
