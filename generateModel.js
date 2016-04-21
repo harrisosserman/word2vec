@@ -112,14 +112,12 @@ var finishReadingFile = function() {
 		potentialContextForHash.push(current);
 		var md5Hash = crypto.MD5(JSON.stringify(potentialContextForHash)).toString();
 		if (md5HashContext[md5Hash]) {
-			console.log("was true.  value is: ", md5HashContext[md5Hash], md5Hash)
 			// this hash is in the WordMapD, so don't put it into D Prime
 			continue;
 		}
 		if (!foundMatch) {
 			if (!wordMapDPrime[current]) wordMapDPrime[current] = [];
 			if (_.isFunction(wordMapDPrime[current])) {
-				console.log("word is a function! ", current)
 				continue;
 			}
 			wordMapDPrime[current].push([prev2, prev1, next1, next2]);	
@@ -176,9 +174,9 @@ var trainModel = function() {
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		writeVectorUpdatesToCSV(DMapKeys, WPrimeTranspose);
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord++) {
-			if (middleWord % 1000 === 0) {
+			if (middleWord % 10 === 0) {
 				console.log("iteration: ", iterationCount, " index: ", middleWord, " total words: ", sizeOfVocabulary);
-			}			
+			}	
 			if (DMapKeys[middleWord]) {
 				for (var k=0; k<wordMapD[DMapKeys[middleWord]].length; k++) {
 					context = wordMapD[DMapKeys[middleWord]][k];
@@ -189,7 +187,7 @@ var trainModel = function() {
 					// See generateIntermediateOutputForContext for more information
 					if (!isNaN(intermediateOutput) && isFinite(intermediateOutput)) {
 						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
-						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);						
+						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);					
 					} 
 				}
 			}
@@ -200,7 +198,7 @@ var trainModel = function() {
 					var intermediateOutput = generateIntermediateOutputForContext(result.Vc, result.Vw, 1);	
 					if (!isNaN(intermediateOutput) && isFinite(intermediateOutput)) {
 						updateWMatrix(W, intermediateOutput, result.nonzeroRows, LEARNING_RATE);
-						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);	
+						updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutput, result.nonzeroRows, LEARNING_RATE);		
 					}							
 				}
 			}
@@ -251,15 +249,12 @@ var updateWMatrix = function(W, intermediateOutput, nonzeroRows, learningRate) {
 	for (var c = 0; c < nonzeroRows.length; c++) {
 		W[nonzeroRows[c]] = math.add(intermediateOutput * learningRate, W[nonzeroRows[c]])
 	}
-	//TODO: CHECK IF I SHOULD BE RETURNING THIS AS A MATH MATRIX OR NOT
-	W = math.matrix(W);
 };
 
 var updateWPrimeTransposeMatrix = function(WPrimeTranspose, intermediateOutput, nonzeroRows, learningRate) {
 	for (var c = 0; c < nonzeroRows.length; c++) {
 		WPrimeTranspose[nonzeroRows[c]] = math.add(intermediateOutput * learningRate, WPrimeTranspose[nonzeroRows[c]])
 	}	
-	WPrimeTranspose = math.matrix(WPrimeTranspose);
 }
 
 var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
