@@ -290,6 +290,11 @@ var findTenMostSimilarWordsToWord = function(wordToCompareTo, DMapKeys, WPrimeTr
 }
 
 var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
+	// every iteration of loop, write the 10 most similar words to a file
+	var tenMostSimilarWords = JSON.stringify(findTenMostSimilarWordsToWord("hello", DMapKeys, WPrimeTranspose), null, 10);
+	fs.writeFileSync('hello.txt', tenMostSimilarWords);
+	
+	// calculate vectors and write them to a file
 	var spreadsheetHeader = ['word'];
 	for (var dimension = 0; dimension < LAYER_1_SIZE; dimension++) {
 		spreadsheetHeader.push((dimension + 1).toString());
