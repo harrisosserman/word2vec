@@ -4,7 +4,8 @@
   "description": "a simple javascript implementation of the famous Google word2vec",
   "main": "script.js",
   "dependencies": {
-    "n-ary-huffman": "^2.1.1",
+    "mocha": "^2.4.5",
+    "chai": "^3.5.0",
     "lodash": "^4.6.1",
     "mathjs": "^3.1.0",
     "crypto-js": "^3.1.6",
