@@ -56,6 +56,10 @@ var finishReadingFile = function() {
 	var prev2 = null, prev1 = null, current = null, next1 = null, next2 = null, word = null;
 	for (var wordIndex = 0; wordIndex < splitWords.length; wordIndex++) {
 		word = splitWords[wordIndex];
+		// ignore any words that show up in the corpus fewer than 5 times
+		if (wordFrequency[word] < 5) {
+			continue;
+		}
 		// the word2vec paper uses 10^-5 as the numerator
 		// determine the probability that you should subsample (ignore) this word
 		// once probability is determined, then get a random number and if it is less than the probability, then remove the word
@@ -176,7 +180,7 @@ var trainModel = function() {
 	for(var iterationCount = 0; iterationCount < TRAINING_ITERATIONS; iterationCount++) {
 		writeVectorUpdatesToCSV(DMapKeys, WPrimeTranspose);
 		for (var middleWord=0; middleWord < sizeOfVocabulary; middleWord++) {
-			if (middleWord % 1000 === 0) {
+			if (middleWord % 10 === 0) {
 				console.log("iteration: ", iterationCount, " index: ", middleWord, " total words: ", sizeOfVocabulary);
 			}			
 			if (DMapKeys[middleWord]) {
