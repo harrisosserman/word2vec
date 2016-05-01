@@ -266,6 +266,29 @@ var updateWPrimeTransposeMatrix = function(WPrimeTranspose, intermediateOutput, 
 	WPrimeTranspose = math.matrix(WPrimeTranspose);
 }
 
+var findTenMostSimilarWordsToWord = function(wordToCompareTo, DMapKeys, WPrimeTranspose) {
+	//using cosine similarity to find 10 most similar words
+	var wordSimilarity = [];
+	var vectorOfWordToCompareTo = WPrimeTranspose[DMapKeys.indexOf(wordToCompareTo)];
+	for(var k=0; k<DMapKeys.length; k++) {
+		var word = DMapKeys[k];
+		if (wordToCompareTo === word) {
+			continue;
+		}
+		var dotProduct = math.dot(vectorOfWordToCompareTo, WPrimeTranspose[k]);
+		var vectorMagnitudesMultiplied = math.hypot(vectorOfWordToCompareTo) * math.hypot(WPrimeTranspose[k]);
+		var cosine = dotProduct / vectorMagnitudesMultiplied;
+		wordSimilarity.push({
+			word: word,
+			cosineSimilarity: cosine
+		});
+	}
+	return _.sortBy(wordSimilarity, function(item) {
+		//it naturally sorts in ascending order, but I want it to sort in descending order
+		return item.cosineSimilarity * -1;
+	}).slice(0, 10);
+}
+
 var writeVectorUpdatesToCSV = function(DMapKeys, WPrimeTranspose) {
 	var spreadsheetHeader = ['word'];
 	for (var dimension = 0; dimension < LAYER_1_SIZE; dimension++) {
@@ -296,6 +319,7 @@ module.exports ={
 	updateWPrimeTransposeMatrix: updateWPrimeTransposeMatrix,
 	initializeHMatrix: initializeHMatrix,
 	initializeWMatrix: initializeWMatrix,
-	initializeWPrimeMatrix: initializeWPrimeMatrix
+	initializeWPrimeMatrix: initializeWPrimeMatrix,
+	findTenMostSimilarWordsToWord: findTenMostSimilarWordsToWord
 };
 

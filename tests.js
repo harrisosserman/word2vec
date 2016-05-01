@@ -73,14 +73,25 @@ describe('One iteration of algorithm', function() {
 		assert(W[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")
 	});
 
-	it('should update W Prime matrix correctly after each iteration', function() {
-		var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
-		var intermediateOutputForDMap = generateModel.generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
-		generateModel.updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutputForDMap, result.nonzeroRows, 0.05);
-		assert(WPrimeTranspose.length === DMapKeys.length, 'W Prime Tranpose should have DMapKeys rows')
-		assert(WPrimeTranspose[0].length === LAYER_1_SIZE, 'W Prime Transpose should have HIDDEN_LAYER columns')
-		assert(WPrimeTranspose[0][0] === 0.5, "rows that are not part of context should remain unchanged")
-		assert(WPrimeTranspose[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")		
+	describe('when trying to update W Prime matrix after each iteration', function() {
+		beforeEach(function() {
+			var result = generateModel.createVcVw(context, middleWord, DMapKeys, W, WPrimeTranspose);
+			var intermediateOutputForDMap = generateModel.generateIntermediateOutputForContext(result.Vc, result.Vw, -1);
+			generateModel.updateWPrimeTransposeMatrix(WPrimeTranspose, intermediateOutputForDMap, result.nonzeroRows, 0.05);
+		});
+		it('should update W Prime matrix correctly after each iteration', function() {
+			assert(WPrimeTranspose.length === DMapKeys.length, 'W Prime Tranpose should have DMapKeys rows')
+			assert(WPrimeTranspose[0].length === LAYER_1_SIZE, 'W Prime Transpose should have HIDDEN_LAYER columns')
+			assert(WPrimeTranspose[0][0] === 0.5, "rows that are not part of context should remain unchanged")
+			assert(WPrimeTranspose[6][0] > 1 && W[6][0] < 2, "rows that are part of the context should be updated")		
+		});
+		it('should find the 10 words most similar to the middle word', function() {
+			// this is only used for debugging so that as I run the algorithm, I can follow the 10 words most similar to the word hello
+			var mostSimilarWords = generateModel.findTenMostSimilarWordsToWord("name", DMapKeys, WPrimeTranspose);
+			assert(mostSimilarWords.length === 10, 'should return the 10 most similar words');
+			assert(mostSimilarWords[0].word === "hello", "the first word in the list should be hello");
+			assert(mostSimilarWords[0].cosineSimilarity === 1, "after running the algorithm only through the first loop, cosine should be 1")
+		});
 	});
 
 	it('should initialize W matrix correctly', function() {
